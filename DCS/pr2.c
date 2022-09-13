@@ -23,5 +23,6 @@ void main()
 
     msgsnd(id, &message, sizeof(message), 0);
 
-    printf("sent data: %s \n", message.mesg_text);
+    printf("data sent: %s", message.mesg_text);
+
 }
