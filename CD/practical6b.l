@@ -1,22 +1,52 @@
 %{
-int cnt = 0;
 %}
+
+%x COMMENT
+%x SINGLE_COMMENT
+
 %%
-[^\n] {
-	int c = input();
-	if (c == '$')
-		printf("a $ detected\n");
+<INITIAL>"/*" {
+	BEGIN(COMMENT);
 	yymore();
-	unput(c);
+}
+<INITIAL>"/"+"/" {
+	BEGIN(SINGLE_COMMENT);
+	yymore();
 }
 
-"\n" {
-printf("%d %s", ++cnt, yytext);
+<COMMENT>[^*]* yymore();
+
+<COMMENT>"*"+[^*/]* yymore();
+
+<COMMENT>"*"+"/" {
+	int c = input();
+	if (c == '\n')
+		printf("--Multiline comment was detected here--\n");
+	unput(c);
+	BEGIN(INITIAL);
+}
+
+<SINGLE_COMMENT>[^\n] {
+	int c = input();
+	if (c == '\n')
+		printf("--Singleline comment was detected here--\n");
+	unput(c);
+	yymore();
+}
+
+<SINGLE_COMMENT>[\n] {
+	yyless(yyleng);
+	BEGIN(INITIAL);
+}
+
+<<EOF>> {
+	printf("EOF\n");
+	yyterminate();
 }
 %%
-
-int yywrap(void) {return 1;}
 
 void main() {
-  yylex();
+	yyin = fopen("test.c", "r");
+	yylex();
+	fclose(yyin);
 }

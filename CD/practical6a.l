@@ -1,13 +1,17 @@
 %{
-int cnt = 0;
+	int counter = 0;
 %}
+
 %x line
 
 %%
-
-[^\n] {
-	printf("%d %s", ++cnt, yytext);
+<INITIAL>[^\n] {
+	printf("%d %s", ++counter, yytext);
 	BEGIN(line);
+}
+
+<INITIAL>[\n] {
+	printf("%d %s", ++counter, yytext);
 }
 
 <line>\n {
@@ -17,7 +21,8 @@ int cnt = 0;
 
 %%
 
-int yywrap(void) {return 1;}
-
 void main() {
-yylex();
+	yyin = fopen("test.c", "r");
+	yylex();
+	fclose(yyin);
+}
