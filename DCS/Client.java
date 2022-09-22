@@ -3,42 +3,40 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Scanner;
 
-public class Client
-{
-	public static void main(String[] args) throws IOException
-	{
-		InetAddress ip = InetAddress.getByName("192.168.48.138");
+public class Client {
+	public static void main(String[] args) throws IOException {
+		InetAddress ip = InetAddress.getByName("127.0.0.1");
 		int port = 4444;
-		Scanner sc = new Scanner(System.in);
+		try (Scanner sc = new Scanner(System.in)) {
+			// Step 1: Open the socket connection.
+			try (Socket s = new Socket(ip, port)) {
+				// Step 2: Communication-get the inputBuffer and output stream
+				DataInputStream dis = new DataInputStream(s.getInputStream());
+				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 
-		// Step 1: Open the socket connection.
-		Socket s = new Socket(ip, port);
+				while (true) {
+					// Enter the equation in the form "operand1 operation operand2"
+					System.out.print("Enter the equation: ");
+					System.out.println("example: (operand operator operand)");
+					System.out.println("");
 
-		// Step 2: Communication-get the input_bufut and output stream
-		DataInputStream dis = new DataInputStream(s.getInputStream());
-		DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+					// wait for input
+					String inputBuffer = sc.nextLine();
 
-		while (true)
-		{
-			// Enter the equation in the form-
-			// "operand1 operation operand2"
-			System.out.print("Enter the equation in the form: ");
-			System.out.println("'operand operator operand'");
+					// If client sends exit,close this connection
+					if (inputBuffer.equals("exit"))
+						break;
 
-			String input_buf = sc.nextLine();
+					// send the equation to server
+					dos.writeUTF(inputBuffer);
 
-			if (input_buf.equals("bye"))
-				break;
-
-			// send the equation to server
-			dos.writeUTF(input_buf);
-
-			// wait till request is processed and sent back to client
-			String ans = dis.readUTF();
-			System.out.println(input_buf + " = " + ans);
+					// wait till request is processed and sent back to client
+					String ans = dis.readUTF();
+					System.out.println(inputBuffer + " = " + ans);
+				}
+			}
 		}
 	}
 }
