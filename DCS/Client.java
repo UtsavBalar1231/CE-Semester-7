@@ -19,7 +19,7 @@ public class Client {
 				while (true) {
 					// Enter the equation in the form "operand1 operation operand2"
 					System.out.print("Enter the equation: ");
-					System.out.println("example: (operand operator operand)");
+					System.out.println("example: (number * number)");
 					System.out.println("");
 
 					// wait for input
